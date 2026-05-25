@@ -961,9 +961,9 @@ footer{
       </div>
     </div>
     <div class="season-selector" id="season-selector">
-      <button data-season="all" class="active">All time</button>
+      <button data-season="all">All time</button>
       <button data-season="2025">2025</button>
-      <button data-season="2026">2026</button>
+      <button data-season="2026" class="active">2026</button>
     </div>
   </div>
   <div class="kv" id="hdr-stats"></div>
@@ -1356,7 +1356,10 @@ const DATA = {"summary":{"n_tournaments_total":140,"n_tournaments_2025":109,"n_t
 window.DATA = DATA;
 
 // Current selected season: 'all', '2025', or '2026'
-let CURRENT_SEASON_KEY = 'all';
+// Pick default season = current calendar year if data exists for it, else 'all'.
+// This way the default automatically tracks the present moment.
+const _currentYear = String(new Date().getFullYear());
+let CURRENT_SEASON_KEY = (DATA.seasons[_currentYear]) ? _currentYear : 'all';
 let S = DATA.seasons[CURRENT_SEASON_KEY];   // the active season's analytics
 let PLAYER_BY_NAME = {};
 let PART_BY_KEY = {};
@@ -1432,6 +1435,10 @@ function renderHeader(){
   document.getElementById('tour-sub').textContent = `${S.n_tournaments} tournaments in this view. Sorted newest first. Click to expand for the full leaderboard and every match played.`;
 }
 renderHeader();
+
+// Sync season selector active state to match CURRENT_SEASON_KEY (dynamic per current year)
+document.querySelectorAll('#season-selector button').forEach(b =>
+  b.classList.toggle('active', b.dataset.season === CURRENT_SEASON_KEY));
 
 document.getElementById('tabs').addEventListener('click', e => {
   const btn = e.target.closest('button[data-tab]');
